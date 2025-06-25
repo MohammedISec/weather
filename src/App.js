@@ -43,6 +43,16 @@ function App() {
 
   const [time, setTime] = useState(null);
   const [direc, setDirec] = useState();
+  const [data, setData] = useState({
+    min: 0,
+    max: 0,
+    temp: 0,
+    loc: "",
+    weather: "",
+    icon: "",
+    lat: 0,
+    lon: 0,
+  });
   // useEffect(() => {
   //   const name = "Flash";
   //   const currDate = new Date().toLocaleDateString;
@@ -51,76 +61,26 @@ function App() {
   //   console.log(time, currDate, currTime);
   // }, []);
   let axiosCancel = null;
-  const data = useSelector((state) => {
-    return state.weather.weather;
-  });
-  const isLoading = useSelector((state) => {
-    return state.weather.isLoading;
-  });
-  const dispatch = useDispatch();
+  // const data = useSelector((state) => {
+  //   return state.weather.weather;
+  // });
+  // const isLoading = useSelector((state) => {
+  //   return state.weather.isLoading;
+  // });
+  // const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(change());
+    // dispatch(change());
     i18n.changeLanguage(language);
     // setLanguage("en");
     moment.locale("ar");
     setDirec("rtl");
     setTime(moment().format("LL"));
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-          dispatch(fetchWeather({ payload: { latitude, longitude } }));
-        },
-        (error) => {
-          console.error("Error getting location:", error.message);
-        }
-      );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-    }
-    dispatch(fetchWeather());
-    // console.log("slkdjsdjlksjdlk");
     // if (navigator.geolocation) {
     //   navigator.geolocation.getCurrentPosition(
     //     (position) => {
     //       const latitude = position.coords.latitude;
     //       const longitude = position.coords.longitude;
-    //       console.log("skf;lks;lkf;lksf ", latitude, longitude);
-    //       axios
-    //         .get(
-    //           `https://api.openweathermap.org/data/2.5/weather?lat=${
-    //             Math.round(position.coords.latitude * 1000) / 1000
-    //           }&lon=${
-    //             Math.round(position.coords.longitude * 1000) / 1000
-    //           }&appid=9a9dcdd096302fa9c8d614f8950d6035`,
-    //           {
-    //             cancelToken: new axios.CancelToken((c) => {
-    //               axiosCancel = c;
-    //             }),
-    //           }
-    //         )
-    //         .then(function (response) {
-    //           const tempresponse = Math.round(response.data.main.temp - 273.15);
-    //           setData({
-    //             min: Math.round(response.data.main.temp_min - 273.15),
-    //             max: Math.round(response.data.main.temp_max - 273.15),
-    //             temp: tempresponse,
-    //             loc: response.data.name,
-    //             weather: response.data.weather[0].description,
-    //             icon: `http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`,
-    //             lat: Math.round(position.coords.latitude * 1000) / 1000,
-    //             lon: Math.round(position.coords.longitude * 1000) / 1000,
-    //           });
-    //           console.log(response);
-    //         })
-    //         .catch(function (error) {
-    //           // handle error
-    //           console.log(error);
-    //         });
-    //       return () => {
-    //         axiosCancel();
-    //       };
+    //       // dispatch(fetchWeather({ latitude, longitude }));
     //     },
     //     (error) => {
     //       console.error("Error getting location:", error.message);
@@ -129,6 +89,57 @@ function App() {
     // } else {
     //   console.error("Geolocation is not supported by this browser.");
     // }
+    // dispatch(fetchWeather());
+    // console.log("slkdjsdjlksjdlk");
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          console.log("skf;lks;lkf;lksf ", latitude, longitude);
+          axios
+            .get(
+              `https://api.openweathermap.org/data/2.5/weather?lat=${
+                Math.round(position.coords.latitude * 1000) / 1000
+              }&lon=${
+                Math.round(position.coords.longitude * 1000) / 1000
+              }&appid=9a9dcdd096302fa9c8d614f8950d6035`,
+              {
+                cancelToken: new axios.CancelToken((c) => {
+                  axiosCancel = c;
+                }),
+              }
+            )
+            .then(function (response) {
+              console.log("response", response);
+              const tempresponse = Math.round(response.data.main.temp - 273.15);
+              setData({
+                min: Math.round(response.data.main.temp_min - 273.15),
+                max: Math.round(response.data.main.temp_max - 273.15),
+                temp: tempresponse,
+                loc: response.data.name,
+                weather: response.data.weather[0].description,
+                icon: `http://openweathermap.org/img/wn/${response.data.weather[0].icon}@2x.png`,
+                lat: Math.round(position.coords.latitude * 1000) / 1000,
+                lon: Math.round(position.coords.longitude * 1000) / 1000,
+              });
+              console.log(response);
+            })
+            .catch(function (error) {
+              // handle error
+              console.log(error);
+            });
+          return () => {
+            axiosCancel();
+          };
+        },
+        (error) => {
+          console.error("Error getting location:", error.message);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
   }, []);
   const theme = createTheme({
     typography: {
@@ -206,87 +217,86 @@ function App() {
                 boxShadow: "0px 11px 1px rgba(0,0,0,0.05)",
               }}
             >
-              {isLoading ? (
-                <CircularProgress style={{ color: "white" }} />
-              ) : (
-                <div>
-                  {/* City & Time */}
-                  <div
-                    dir={direc}
-                    style={{
-                      display: "flex",
-                      alignItems: "end",
-                      justifyContent: "start",
-                    }}
+              {/* {isLoading ? ( */}
+              {/* <CircularProgress style={{ color: "white" }} /> */}
+              {/* ) : ( */}
+              <div>
+                {/* City & Time */}
+                <div
+                  dir={direc}
+                  style={{
+                    display: "flex",
+                    alignItems: "end",
+                    justifyContent: "start",
+                  }}
+                >
+                  <Typography
+                    variant="h4"
+                    style={{ margin: "20px", fontWeight: "400" }}
                   >
-                    <Typography
-                      variant="h4"
-                      style={{ margin: "20px", fontWeight: "400" }}
-                    >
-                      {t(data.loc)}
-                    </Typography>
-                    <Typography variant="h5" style={{ margin: "20px" }}>
-                      {time}
-                    </Typography>
-                  </div>
-                  {/* =====City & Time===== */}
-                  <hr style={{ color: "white", margin: "0px 20px" }} />
-
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      padding: "10px",
-                    }}
-                    dir={direc}
-                  >
-                    {/* Drgree */}
-                    <div>
-                      {/* Temp */}
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "",
-                        }}
-                      >
-                        <Typography style={{ textAlign: "right" }} variant="h1">
-                          {data.temp}
-                        </Typography>
-                        <img src={data.icon} alt="" />
-                      </div>
-                      {/* ===Temp=== */}
-                      <Typography variant="h5">{t(data.weather)}</Typography>
-                      {/* MIN & MAX */}
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        <h5>
-                          {t("Low")} : {data.min}
-                        </h5>
-                        <h5 style={{ margin: "0px 5px" }}>|</h5>
-                        <h5>
-                          {t("High")} : {data.max}
-                        </h5>
-                      </div>
-                      {/* =====MIN & MAX===== */}
-                    </div>
-                    {/* =====Drgree===== */}
-                    {/* icon */}
-
-                    <CloudIcon style={{ fontSize: "200px" }} />
-
-                    {/*}
-                {/* ====icon==== */}
-                  </div>
+                    {t(data.loc)}
+                  </Typography>
+                  <Typography variant="h5" style={{ margin: "20px" }}>
+                    {time}
+                  </Typography>
                 </div>
-              )}
-              {/* Content */}
+                {/* =====City & Time===== */}
+                <hr style={{ color: "white", margin: "0px 20px" }} />
 
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    padding: "10px",
+                  }}
+                  dir={direc}
+                >
+                  {/* Drgree */}
+                  <div>
+                    {/* Temp */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "",
+                      }}
+                    >
+                      <Typography style={{ textAlign: "right" }} variant="h1">
+                        {data.temp}
+                      </Typography>
+                      <img src={data.icon} alt="" />
+                    </div>
+                    {/* ===Temp=== */}
+                    <Typography variant="h5">{t(data.weather)}</Typography>
+                    {/* MIN & MAX */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <h5>
+                        {t("Low")} : {data.min}
+                      </h5>
+                      <h5 style={{ margin: "0px 5px" }}>|</h5>
+                      <h5>
+                        {t("High")} : {data.max}
+                      </h5>
+                    </div>
+                    {/* =====MIN & MAX===== */}
+                  </div>
+                  {/* =====Drgree===== */}
+                  {/* icon */}
+
+                  <CloudIcon style={{ fontSize: "200px" }} />
+
+                  {/*}
+                {/* ====icon==== */}
+                </div>
+              </div>
+              {/* )} */}
+              {/* Content */}
               {/* =====Content===== */}
               {/* <div style={{ color: "white" }}>
                 <h5>lat: {data.lat}</h5>
