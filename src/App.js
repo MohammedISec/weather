@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import Container from "@mui/material/Container";
 import Typography from "@mui/material/Typography";
 import CloudIcon from "@mui/icons-material/Cloud";
-import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 // import { useGeolocated } from "react-geolocated";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -280,11 +279,7 @@ function App() {
                     {/* icon */}
 
                     <CloudIcon style={{ fontSize: "200px" }} />
-                    {/* <img
-                      style={{ width: "200px", border: "0px" }}
-                      src={data.icon}
-                      alt=""
-                    /> */}
+
                     {/*}
                 {/* ====icon==== */}
                   </div>
