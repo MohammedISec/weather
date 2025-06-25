@@ -281,10 +281,10 @@ function App() {
 
                     <CloudIcon style={{ fontSize: "200px" }} />
                     {/* <img
-                  style={{ width: "200px", border: "0px" }}
-                  src={data.icon}
-                  alt=""
-                /> */}
+                      style={{ width: "200px", border: "0px" }}
+                      src={data.icon}
+                      alt=""
+                    /> */}
                     {/*}
                 {/* ====icon==== */}
                   </div>
